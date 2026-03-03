@@ -2,6 +2,9 @@ console.log("JavaScript se ha conectado en orden");
 
 const btnCargar = document.getElementById("btnCargar");
 const btnBorrar = document.getElementById("btnBorrar");
+const btnAgregar = document.getElementById("btnAgregar");
+const input = document.getElementById("inputTexto");
+
 const lista = document.getElementById("lista");
 const estado = document.getElementById("estado");
 const contador = document.getElementById("contador");
@@ -15,11 +18,27 @@ function render() {
 
     tareas.forEach(function (tarea) {
         const item = document.createElement("li");
-        item.textContent = tarea.titulo;
+
+        const texto = document.createElement("span");
+        texto.textContent = tarea.titulo;
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+
+        btnEliminar.addEventListener("click", function() {
+            //eliminar del estado por id
+            tareas = tareas.filter( function (t) {
+                return t.id !== tarea.id;
+            });
+
+            render();
+        });
+        item.appendChild(texto);
+        item.appendChild(btnEliminar);
         lista.appendChild(item);
     });
 
-    contador.textContent = "Tareas: "+ tareas.length;
+    contador.textContent = "Tareas: "+tareas.length;
 };
 
 //Cargar datos desde API -> llenar datos -> render
@@ -54,8 +73,28 @@ async function cargarDesdeAPI() {
     }
 }
 
+//Agregar manual (al estado)
+function agregarTareaManual() {
+    const texto = input.value.trim();
+    if (texto === "")return;
+    
+    const nuevaTarea = {
+        id: Date.now(), //id local simple
+        titulo: texto,
+        completada: false
+    };
+
+    tareas.push(nuevaTarea);
+
+    input.value = "";
+    input.focus();
+    render();
+}
+
 //Eventos
 btnCargar.addEventListener("click", cargarDesdeAPI);
+
+btnAgregar.addEventListener("click", agregarTareaManual);
 
 btnBorrar.addEventListener("click", function() {
     tareas = [];
